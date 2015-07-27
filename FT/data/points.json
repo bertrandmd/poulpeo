@@ -1,0 +1,181 @@
+var toto ={
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {"icon": "bicycle","nom" : "Tacos Beb's"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.8582611083984375,
+          43.566959250284235
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "bell","nom" : "Le camion du gaz"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9320755004882817,
+          43.558749572297636
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "cube","nom" : "Tomato Burger"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9571380615234375,
+          43.58586213224808
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "shield","nom" : "la friterie"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9269256591796875,
+          43.600284023536325
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "ship","nom" : "Bar à Soup"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9245223999023438,
+          43.630608445093486
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "rocket","nom" : "Joe l'indien"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.8816070556640625,
+          43.60376465190968
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "taxi","nom" : "Pouet-Pouet"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9794540405273438,
+          43.545561990655855
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "support","nom" : "Les binouzes en folie"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.8695907592773433,
+          43.632596397492996
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "user-secret","nom" : "My Trucks"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.8369750976562496,
+          43.59456541119905
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "car","nom" : "Pizza Bob"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.93310546875,
+          43.57765503082314
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "bus","nom" : "Mr Fish"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9025497436523438,
+          43.57243174740972
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "truck","nom" : "Le camion a Poulpe"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9640045166015625,
+          43.63657210502274
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "space-shuttle","nom" : "Sushi Cab"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          4.011383056640625,
+          43.614205328810954
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "plane","nom" : "Chinese Food"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.857917785644531,
+          43.529135685021664
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "ambulance","nom" : "Art Burger"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.903236389160156,
+          43.56720801094054
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {"icon": "fire","nom" : "La baguette francaise"},
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          3.9276123046874996,
+          43.52589967307701
+        ]
+      }
+    }
+  ]
+};

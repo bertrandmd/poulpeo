@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet mobile example</title>
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<link rel="stylesheet" href="../dist/leaflet.css" />
+<link rel="stylesheet" href="../css/leaflet.awesome-markers.css">
+<link rel="stylesheet" href="../css/leaflet.usermarker.css">
+	<script src="../dist/leaflet.js"></script>
+<link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+<script src="../plugin/leaflet.awesome-markers.js"></script>
+	<script src="../plugin/leaflet_edgemarker/Leaflet.EdgeMarker.js"></script>
+        <link rel="stylesheet" href="../plugin/leaflet_routing_machine/leaflet-routing-machine.css" />
+	<script src="../plugin/leaflet_routing_machine/leaflet-routing-machine.js"></script>
+	<!-- quoter la ligne 1952 pour supprimer l'ajout de marker-->
+	<script src="../plugin/leaflet.usermarker.js"></script>
+	<script src="../plugin/leaflet-realtime.js"></script>
+	<script src="../dist/turf.min.js"></script>
+	<script src="data/points.json"></script>
+<script src="http://code.jquery.com/jquery-1.11.2.js"></script>
+
+	<style>
+		body {
+			padding: 0;
+			margin: 0;
+		}
+		html, body, #map {
+			height: 100%;
+		}
+.menu-ui {
+  background:#fff;
+  position:absolute;
+  bottom:10px;left:10px;
+  z-index:1;
+  border-radius:3px;
+  width:120px;
+  border:1px solid rgba(0,0,0,0.4);
+  }
+  .menu-ui a {
+    font-size:13px;
+    color:#404040;
+    display:block;
+    margin:0;padding:0;
+    padding:5px 10px;
+    text-decoration:none;
+    border-bottom:1px solid rgba(0,0,0,0.25);
+    text-align:center;
+    }
+    .menu-ui a:first-child {
+      border-radius:3px 3px 0 0;
+      }
+    .menu-ui a:last-child {
+      border:none;
+      border-radius:0 0 3px 3px;
+      }
+    .menu-ui a:hover {
+      background:#f8f8f8;
+      color:#404040;
+      }
+    .menu-ui a.active {
+      background:#3887BE;
+      color:#FFF;
+      }
+      .menu-ui a.active:hover {
+        background:#3074a4;
+        }
+.custom-popup .leaflet-popup-content-wrapper {
+  background:#2c3e50;
+  color:#fff;
+  font-size:16px;
+  line-height:24px;
+  }
+.custom-popup .leaflet-popup-content-wrapper a {
+  color:rgba(255,255,255,0.5);
+  }
+.custom-popup .leaflet-popup-tip-container {
+  width:30px;
+  height:15px;
+  }
+
+.custom-popup .leaflet-popup-tip {
+  /*border-left:15px solid transparent;
+  border-right:15px solid transparent;
+  border-top:15px solid #2c3e50;*/
+  background : #2c3e50;
+  }
+	</style>
+</head>
+<body>
+	<div class='custom-popup' id="map"></div>
+<nav id='menu-ui' class='menu-ui'></nav>
+
+	<script>
+		var map = L.map('map');
+
+		L.tileLayer('https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token=pk.eyJ1IjoibWFwYm94IiwiYSI6IjZjNmRjNzk3ZmE2MTcwOTEwMGY0MzU3YjUzOWFmNWZhIn0.Y8bhBaUMqFiPrDRW9hieoQ', {
+			maxZoom: 18,
+			attribution: 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, ' +
+				'<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, ' +
+				'Imagery © <a href="http://mapbox.com">Mapbox</a>',
+			id: 'mapbox.streets'
+		}).addTo(map);
+
+var menu = document.getElementById('menu-ui');
+
+var donnees =$.getJSON('data/points2.json?callback=lu0.lu_9_260_189',loadData);
+
+var liste = [];
+var markerGroup = L.layerGroup([]);
+
+var jours = ["Lundi","Mardi","Mercredi", "Jeudi", "Vendredi"]
+
+function createMenu(){
+for (jour in jours){
+    var link = document.createElement('a');
+        link.href = '#';	
+	link.id = jours[jour];
+        //link.className = jours[jour];
+        link.innerHTML = jours[jour];
+
+   link.onclick = function(e) {
+        e.preventDefault();
+        e.stopPropagation();
+
+        if (this.className== 'active' ) {
+	//console.log(this.id);
+        //    map.removeLayer(layer);
+            this.className = '';
+        } else {
+	    for (jour in jours) {
+		var id = '#'+ jours[jour];
+		if ($(id).attr("class")=='active'){$(id).removeClass("active");}
+	    }
+	    var jour = this.id.toLowerCase();
+            newPosition(jour);
+            this.className = 'active';
+
+        }
+    };
+
+    menu.appendChild(link);
+}
+$('#Lundi').addClass('active')
+}
+
+createMenu()
+
+//$("#menu-ui").buttonset();
+
+function onClick(e) {
+    route(moi._latlng.lat,moi._latlng.lng,e.latlng.lat, e.latlng.lng,e)
+    //openPopup()
+}
+function getRandomLatLng(map) {
+    var bounds = map.getBounds(),
+    southWest = bounds.getSouthWest(),
+    northEast = bounds.getNorthEast(),
+    lngSpan = northEast.lng - southWest.lng,
+    latSpan = northEast.lat - southWest.lat;
+    return new L.LatLng(
+    southWest.lat + latSpan * Math.random(),
+    southWest.lng + lngSpan * Math.random());
+}
+
+function getDepartLatLng(i) {
+    var id = window[liste[i]]
+    var lat = id.feature.geometry.coordinates[1];
+    var long = id.feature.geometry.coordinates[0]; 
+    return new L.LatLng(lat,long);
+}
+
+//fonction qui randomize les positions
+function bob(fonction){
+    for (i=0; i <=  liste.length -1; i++){
+	//modifie la position de chaque Marker	
+	//window[liste[i]].setLatLng(getRandomLatLng(map));
+	fonction(i)
+    }
+}
+
+function loadData(data){
+    tutu = data;
+    var tata = new L.GeoJSON(data,{//toto,{
+	pointToLayer: function (feature, latlng) {
+		//console.log(window[feature.properties.icon]);
+		liste.push(feature.properties.icon);
+		var tataOption = {
+			draggable : true,
+			icon: L.AwesomeMarkers.icon({
+				icon: feature.properties.icon, 
+				markerColor: 'orange', 
+				prefix: 'fa', 
+				iconColor: 'black'
+				})
+			};
+		return window[feature.properties.icon] = L.marker(latlng,tataOption).bindPopup(feature.properties.nom); 
+		//markerGroup.addLayer(window[feature.properties.icon]);
+		}
+	}
+    ).addTo(map).on('click', onClick).openPopup();
+    bob(titi);
+    updateData()
+    tata.on('mouseover', function(e) {
+      e.layer.openPopup();
+    });
+    tata.on('mouseout', function(e) {
+      e.layer.closePopup();
+    });
+}
+
+function titi(i){
+    markerGroup.addLayer(window[liste[i]]);
+}
+  
+//bob(titi);
+
+//var shape = markerGroup.toGeoJSON()
+
+function updateData(){
+    shape = markerGroup.toGeoJSON()
+}
+
+function save(){
+  //crée le markerGroup avec les derniers markers mis à jour
+  bob(titi);
+  var shape = markerGroup.toGeoJSON()
+  var shape_for_db = JSON.stringify(shape);
+  console.log(shape_for_db)
+
+}
+
+//fonction pour créer des nouvelles positins et les stocker dans le json
+function addRandomLatLng(i){
+var id = window[liste[i]]
+//renvoi un L.latlng pour chaque marker, stocké dans ses propriétés
+id.feature.properties.Depart =  getDepartLatLng(i);
+id.feature.properties.lundi = getRandomLatLng(map);
+id.feature.properties.mardi = getRandomLatLng(map);
+id.feature.properties.mercredi = getRandomLatLng(map);
+id.feature.properties.jeudi = getRandomLatLng(map);
+id.feature.properties.vendredi = getRandomLatLng(map);
+
+}
+//bob(addRandomLatLng);
+//taxi.feature.properties.newPosition = [43.604841, 3.881153];
+//taxi.setLatLng(L.latLng(taxi.feature.properties.newPosition));
+
+
+
+
+
+
+//bob(newPosition(lundi);
+/*
+    style: function (feature) {
+        return {color: feature.properties.color};
+    },
+    onEachFeature: function (feature, layer) {
+        layer.bindPopup(feature.properties.description);
+    }
+
+L.marker([10.496093,-66.881935]).addTo(map).on('mouseover', onClick);
+
+Then create the onClick function:
+*/
+
+
+
+/*var bitr = L.marker([43.572048, 3.9435],{draggable : true})
+	.addTo(map)
+	//.on('mouseover', onClick)
+	.bindPopup(popupContent)
+	.openPopup();*/
+
+//L.circle([43.575023, 3.9401], 500).addTo(map);
+
+//map.setView([43.575023, 3.9401], 11);
+// add the EdgeMarker to the map.
+    L.edgeMarker({
+      icon: L.icon({ // style markers
+          iconUrl: '../dist/images/edge-arrow-marker-black.png',
+          clickable: true,
+          iconSize: [96, 96],//[48, 48],
+          iconAnchor:[24, 24]})//[24, 24]})
+      //},
+      //rotateIcons: true, // rotate EdgeMarkers depending on their relative position
+      //layerGroup: null // you can specify a certain L.layerGroup to create the edge markers from.
+    }).addTo(map);
+
+
+
+
+
+function newPosition(jour){
+    for (i=0; i <=  liste.length -1; i++){
+	//modifie la position de chaque Marker	
+	var id = window[liste[i]]
+	id.setLatLng(id.feature.properties[jour]);
+    }
+    updateData()
+    aa();
+}
+
+
+function aa() {
+if (typeof nearestX != 'undefined'){
+window[nearestX.properties.icon].setIcon(L.AwesomeMarkers.icon({
+		icon: nearestX.properties.icon, 
+		markerColor: 'orange', 
+		prefix: 'fa', 
+		iconColor: 'black'
+		}));}
+//console.log ("nouvelle coordonnées" + moi._latlng.lat+','+moi._latlng.lng);
+    bebs = turf.point([moi._latlng.lng,moi._latlng.lat]);
+    nearestX = turf.nearest(bebs, shape);
+    var point = window[nearestX.properties.icon]
+    	point.setIcon(L.AwesomeMarkers.icon({
+		icon: nearestX.properties.icon, 
+		markerColor: 'green', 
+		prefix: 'fa', 
+		iconColor: 'white'
+		}))
+	route(moi._latlng.lat,moi._latlng.lng,nearestX.geometry.coordinates[1], nearestX.geometry.coordinates[0],point);
+	//console.log(trajet._routes[0]);
+	//point._popup.setContent(point.feature.properties.nom + ' ' + trajet._routes[0].summary.totalDistance/1000 + 'km');
+	//point.openPopup();
+	//map.setView(moi._latlng);
+	//map.setZoom(13);
+	}
+
+
+/*function final() {
+L.geoJson(nearest3,{
+		pointToLayer: function (feature, latlng) {
+			return L.marker(latlng,tataOption);
+			}
+		}
+	).addTo(map);
+}*/
+
+
+		function onLocationFound(e) {
+			//console.log(e.accuracy);
+			//si mauvaise accuracy:
+			if (e.accuracy>500) {
+				malatlng = [43.572048, 3.9435]
+				} else {
+			//si bonne accuracy:
+				malatlng = e.latlng
+			}
+ 
+			var radius = e.accuracy / 2;
+
+			//L.marker(e.latlng).addTo(map)
+			//	.bindPopup("You are within " + radius + " meters from this point").openPopup();
+			//console.log(e.latlng.lat);
+			//maPosition = turf.point([e.latlng.lng,e.latlng.lat]);
+			//L.circle(e.latlng, radius).addTo(map);
+    			var marker = L.userMarker(malatlng, {pulsing:true, accuracy:100, smallIcon:true});
+			marker.addTo(map);
+			
+			moi = L.marker(malatlng,{
+				icon: L.AwesomeMarkers.icon({
+					icon: 'street-view', markerColor: 'red', prefix: 'fa'}),
+				draggable : true
+				})
+			.bindPopup("bebs")
+			.openPopup()
+			.on('dragend', aa)
+			.addTo(map);
+			aa()
+			window[nearestX.properties.icon].setIcon(L.AwesomeMarkers.icon({
+				icon: nearestX.properties.icon, 
+				markerColor: 'green', 
+				prefix: 'fa', 
+				iconColor: 'white'
+			}));
+		}
+
+
+		function onLocationError(e) {
+			alert(e.message);
+			moi = L.marker([43.572048, 3.9435],{
+				icon: L.AwesomeMarkers.icon({
+					icon: 'street-view', markerColor: 'red', prefix: 'fa'}),
+				draggable : true
+				})
+			.bindPopup("bebs")
+			.openPopup()
+			.on('dragend', aa)
+			.addTo(map);
+			aa()
+			window[nearestX.properties.icon].setIcon(L.AwesomeMarkers.icon({
+					icon: nearestX.properties.icon, 
+					markerColor: 'green', 
+					prefix: 'fa', 
+					iconColor: 'white'
+					}));
+		}
+
+		map.on('locationfound', onLocationFound);
+		//
+		//map.on('locationfound', onLocationFound);
+		map.on('locationerror', onLocationError);
+
+		map.locate({setView: true, maxZoom: 16});
+
+
+function route(latO,longO,latD,longD,point){
+if (typeof trajet != 'undefined'){
+map.removeControl(trajet);}
+trajet = L.Routing.control({
+  waypoints: [
+    L.latLng(latO,longO),
+    L.latLng(latD,longD)
+  ]}).addTo(map);
+console.log(trajet._routes);
+//point._popup.setContent(point.feature.properties.nom + ' ' + trajet._routes[0].summary.totalDistance/1000 + 'km');
+point.openPopup();
+	//map.setView(moi._latlng);
+	//map.setZoom(13);
+
+}
+
+/*
+L.Routing.control({
+  waypoints: [
+    L.latLng(43.575034, 3.946932),
+    L.latLng(43.575438, 3.924015)
+  ]
+}).addTo(map);
+
+var bob = L.Routing.control({
+  waypoints: [
+    L.latLng(43.575048, 3.9405),
+    L.latLng(43.575023, 3.9401)
+  ]
+}).addTo(map);*/
+//bob._routes[0].summary.totalDistance
+/*var point = turf.point([-97.514914, 35.463453], {
+    "title": "OKC Thunder",
+    "description": "100 W Reno Ave, Oklahoma City",
+    "marker-color": "#6BC65F",
+    "marker-size": "large",
+    "marker-symbol": "basketball"
+});
+var point2 = turf.point([43.6008, 3.9489]);
+var point3 = turf.point([3.9489,43.6008]);
+
+var nearest = turf.nearest(point, toto);
+
+L.marker([nearest.geometry.coordinates[1], nearest.geometry.coordinates[0]], {icon: L.AwesomeMarkers.icon({icon: 'spinner', markerColor: 'red', prefix: 'fa', spin:true}) }).addTo(map).bindPopup("PD !!!").openPopup();
+L.geoJson(point).addTo(map);
+
+
+function colorize(){
+
+}*/
+
+
+
+
+
+	</script>
+</body>
+</html>
