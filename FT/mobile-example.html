@@ -345,7 +345,7 @@ L.geoJson(nearest3,{
 			//console.log(e.accuracy);
 			//si mauvaise accuracy:
 			if (e.accuracy>500) {
-				malatlng = [43.572048, 3.9435]
+				malatlng = e.latlng//[43.572048, 3.9435]
 				} else {
 			//si bonne accuracy:
 				malatlng = e.latlng
